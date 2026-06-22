@@ -50,6 +50,9 @@ quantity:quantity,
 amount:amount
 }]);
 
+const address = document.getElementById('address').value;
+const area = document.getElementById('area').value;
+
 document.getElementById('message').innerHTML=
 'Order Submitted Successfully';
 }
