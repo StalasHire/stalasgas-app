@@ -1,0 +1,55 @@
+const SUPABASE_URL =
+'https://prgyyylrwxkzelydtaaw.supabase.co';
+
+const SUPABASE_KEY =
+'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY';
+
+const client =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+const prices={
+'5kg':240,
+'7kg':310,
+'9kg':360,
+'14kg':550,
+'19kg':710,
+'48kg':1600
+};
+
+async function submitOrder(){
+
+const name=document.getElementById('name').value;
+const phone=document.getElementById('phone').value;
+const product=document.getElementById('product').value;
+const quantity=parseInt(document.getElementById('quantity').value);
+
+let amount=
+prices[product]*quantity;
+
+const customer=
+await client
+.from('customers')
+.insert([{
+name:name,
+phone:phone
+}])
+.select();
+
+const customerId=
+customer.data[0].id;
+
+await client
+.from('orders')
+.insert([{
+customer_id:customerId,
+product:product,
+quantity:quantity,
+amount:amount
+}]);
+
+document.getElementById('message').innerHTML=
+'Order Submitted Successfully';
+}
