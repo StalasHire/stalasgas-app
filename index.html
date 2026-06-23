@@ -6,25 +6,15 @@
 <title>Stala'sGas Orders</title>
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <header>
 <h1>🔥 Stala'sGas</h1>
 <p>Cook Smart Use Gas</p>
 </header>
-
 <div class="container">
-
 <h2>Place Order</h2>
-
 <input id="name" placeholder="Customer Name">
-
 <input id="phone" placeholder="Phone Number">
-  
-<input id="address" placeholder="Delivery Address">
-  
-<input id="area" placeholder="Area/Suburb">
 
 <input
   type="text"
@@ -32,32 +22,26 @@
   placeholder="Delivery Address"
   required
 />
-
 <input
   type="text"
   id="area"
   placeholder="Area / Suburb"
   required
 />
-  <select id="product">
+
+<select id="product">
 <option value="5kg">5kg - R250</option>
 <option value="7kg">7kg - R325</option>
 <option value="9kg">9kg - R380</option>
 <option value="14kg">14kg - R580</option>
-<option value="19kg">R750</option>
-<option value="48kg">R1600</option>
+<option value="19kg">19kg - R750</option>
+<option value="48kg">48kg - R1600</option>
 </select>
-
 <input id="quantity" type="number" value="1">
-
 <button onclick="submitOrder()">Submit Order</button>
-
 <div id="message"></div>
-
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="app.js"></script>
-
 </body>
 </html>
