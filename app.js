@@ -29,6 +29,16 @@ const quantity=parseInt(document.getElementById('quantity').value);
 let amount=
 prices[product]*quantity;
 
+const customer = {
+  name: document.getElementById("name").value,
+  phone: document.getElementById("phone").value,
+  address: document.getElementById("address").value,
+  area: document.getElementById("area").value
+};
+
+await supabase
+  .from("customers")
+  .insert([customer]);
 const customer=
 await client
 .from('customers')
