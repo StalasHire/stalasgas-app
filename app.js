@@ -1,68 +1,61 @@
-const SUPABASE_URL =
-'https://prgyyylrwxkzelydtaaw.supabase.co';
+const SUPABASE_URL = 'https://prgyyylrwxkzelydtaaw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY';
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const SUPABASE_KEY =
-'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY';
-
-const client =
-supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
-const prices={
-'5kg':250,
-'7kg':325,
-'9kg':380,
-'14kg':580,
-'19kg':750,
-'48kg':1600
+const prices = {
+  '5kg': 250,
+  '7kg': 325,
+  '9kg': 380,
+  '14kg': 580,
+  '19kg': 750,
+  '48kg': 1600
 };
 
-async function submitOrder(){
+async function submitOrder() {
+  const name = document.getElementById('name').value;
+  const phone = document.getElementById('phone').value;
+  const address = document.getElementById('address').value;
+  const area = document.getElementById('area').value;
+  const product = document.getElementById('product').value;
+  const quantity = parseInt(document.getElementById('quantity').value);
 
-const name=document.getElementById('name').value;
-const phone=document.getElementById('phone').value;
-const product=document.getElementById('product').value;
-const quantity=parseInt(document.getElementById('quantity').value);
+  const amount = prices[product] * quantity;
 
-let amount=
-prices[product]*quantity;
+  // Single customer object, single insert
+  const customer = {
+    name: name,
+    phone: phone,
+    address: address,
+    area: area
+  };
 
-const customer = {
-  name: document.getElementById("name").value,
-  phone: document.getElementById("phone").value,
-  address: document.getElementById("address").value,
-  area: document.getElementById("area").value
-};
+  const { data: customerData, error: customerError } = await client
+    .from('customers')
+    .insert([customer])
+    .select();
 
-await supabase
-  .from("customers")
-  .insert([customer]);
-const customer=
-await client
-.from('customers')
-.insert([{
-name:name,
-phone:phone
-}])
-.select();
+  if (customerError) {
+    console.error('Customer insert failed:', customerError);
+    document.getElementById('message').innerHTML = 'Error submitting order';
+    return;
+  }
 
-const customerId=
-customer.data[0].id;
+  const customerId = customerData[0].id;
 
-await client
-.from('orders')
-.insert([{
-customer_id:customerId,
-product:product,
-quantity:quantity,
-amount:amount
-}]);
+  const { error: orderError } = await client
+    .from('orders')
+    .insert([{
+      customer_id: customerId,
+      product: product,
+      quantity: quantity,
+      amount: amount
+    }]);
 
-const address = document.getElementById('address').value;
-const area = document.getElementById('area').value;
+  if (orderError) {
+    console.error('Order insert failed:', orderError);
+    document.getElementById('message').innerHTML = 'Error submitting order';
+    return;
+  }
 
-document.getElementById('message').innerHTML=
-'Order Submitted Successfully';
+  document.getElementById('message').innerHTML = 'Order Submitted Successfully';
 }
