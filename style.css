@@ -1,3 +1,47 @@
+/* Header Background & Layout */
+.site-header {
+  background-color: #ffffff; /* Change to match your brand (e.g., #f8f9fa or dark #1a1a1a) */
+  padding: 20px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Soft shadow to make header pop */
+  width: 100%;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers logo and text */
+  text-align: center;
+}
+
+/* Logo Sizing and Visibility */
+.logo-wrapper {
+  background: transparent; /* If your logo has a dark background, you can set this to white or vice-versa */
+  padding: 5px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.main-logo {
+  display: block;
+  width: 100%;
+  max-width: 220px; /* Adjust this value up or down to find your perfect logo size */
+  height: auto;     /* Maintains original image proportions so it doesn't stretch */
+  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.15)); /* Adds a subtle depth map around the logo graphic */
+}
+
+/* Tagline Styling */
+.tagline {
+  font-family: Arial, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e65100; /* A vibrant gas-orange/blue theme color. Change to match your brand! */
+  margin: 0;
+  letter-spacing: 0.5px;
+}
 body{
     margin:0;
     padding:20px;
