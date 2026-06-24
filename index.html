@@ -56,6 +56,27 @@
   placeholder="Area / Suburb"
   required
 />
+<select id="orderType" required>
+<option value="">Select Order Type</option>
+
+<option value="refill">
+🔥 Gas Refill Only
+</option>
+
+<option value="exchange">
+🔄 Cylinder Exchange + Gas
+</option>
+
+<option value="new-gas">
+🆕 New Cylinder + Gas
+</option>
+
+<option value="new-cylinder">
+🛢️ New Empty Cylinder Only
+</option>
+
+</select>
+  
 <select id="product">
 <option value="5kg">5kg</option>
 <option value="7kg">7kg</option>
@@ -64,6 +85,7 @@
 <option value="19kg">19kg</option>
 <option value="48kg">48kg</option>
 </select>
+  
 <select id="product">
 <option value="5kg">5kg - R250</option>
 <option value="7kg">7kg - R325</option>
