@@ -1,53 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Stala'sGas Dashboard</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-<style>
-body{
-font-family:Arial;
-background:#f4f4f4;
-padding:20px;
-}
-
-.card{
-background:white;
-padding:20px;
-margin:10px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,.1);
-}
-
-h1{
-color:#ff6600;
-}
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stala'sGas - Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Dashboard Specific Styles override */
+    .dash-container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .metric-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      text-align: center;
+      border-top: 4px solid var(--secondary-color);
+    }
+    .metric-card.sales { border-top-color: var(--primary-color); }
+    .metric-card h3 { font-size: 0.9rem; color: #666; text-transform: uppercase; margin-bottom: 5px; }
+    .metric-card p { font-size: 1.8rem; font-weight: bold; color: #222; }
+    
+    .table-responsive {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+    .table-responsive h2 { margin-bottom: 15px; font-size: 1.3rem; color: var(--secondary-color); text-align: left; border: none; }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+    }
+    th { background-color: var(--bg-light); color: var(--secondary-color); font-weight: 600; }
+    tr:hover { background-color: #fdfdfd; }
+    
+    .refresh-btn {
+      width: auto;
+      display: inline-block;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      background-color: var(--secondary-color);
+    }
+    .refresh-btn:hover { background-color: #0a3680; }
+  </style>
 </head>
-
 <body>
 
-<h1>🔥 Stala'sGas Dashboard</h1>
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo-wrapper">
+        <img src="StalasGas_Logo.png" alt="Stala'sGas Logo" class="main-logo">
+      </div>
+      <p class="tagline">Admin Control Panel</p>
+    </div>
+  </header>
 
-<div class="card">
-<h2>Total Customers</h2>
-<h3 id="customers">0</h3>
-</div>
+  <div class="dash-container">
+    
+    <div class="metrics-grid">
+      <div class="metric-card sales">
+        <h3>Total Revenue</h3>
+        <p id="totalRevenue">R0</p>
+      </div>
+      <div class="metric-card">
+        <h3>Total Orders</h3>
+        <p id="totalOrders">0</p>
+      </div>
+      <div class="metric-card">
+        <h3>Active Customers</h3>
+        <p id="totalCustomers">0</p>
+      </div>
+    </div>
 
-<div class="card">
-<h2>Total Orders</h2>
-<h3 id="orders">0</h3>
-</div>
+    <div class="table-responsive">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Recent Live Orders</h2>
+        <button class="refresh-btn" onclick="loadDashboardData()">🔄 Refresh Data</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Area / Suburb</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Total Amount</th>
+          </tr>
+        </thead>
+        <tbody id="orderTableBody">
+          <tr>
+            <td colspan="7" style="text-align: center; color: #999;">Loading logs...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-<div class="card">
-<h2>Total Revenue</h2>
-<h3 id="revenue">R0</h3>
-</div>
+  </div>
 
-<script src="dashboard.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="dashboard.js"></script>
 </body>
 </html>
