@@ -21,7 +21,8 @@
     <div class="form-card">
       <h2>Place Order Here</h2>
 
-      <form id="orderForm" onsubmit="submitOrder(event)">
+      <!-- Form encapsulates all input elements cleanly -->
+      <form id="orderForm">
         
         <input type="text" id="name" placeholder="Customer Name" required />
         <input type="tel" id="phone" placeholder="Contact Number" required />
@@ -67,17 +68,134 @@
           <option value="email">Submit via Email</option>
         </select>
 
-        <p id="totalPrice">Total: R0</p>
+        <p id="totalPrice" style="font-weight: bold; font-size: 1.3em; margin: 15px 0; color: #002d62;">Total: R0</p>
         
-        <button type="submit">Submit Order</button>
+        <button type="submit" style="width: 100%; cursor: pointer;">Submit Order</button>
 
       </form>
         
-      <div id="message"></div>
+      <div id="message" style="margin-top: 15px;"></div>
     </div>
   </div>
 
+  <!-- Scripts loaded sequentially -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      
+      // Initialize Supabase Client safely
+      let supabaseClient = null;
+      if (window.supabase) {
+        supabaseClient = window.supabase.createClient(
+          'https://prgyyylrwxkzelydtaaw.supabase.co',
+          'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY'
+        );
+      }
+
+      const productSelect = document.getElementById('product');
+      const quantityInput = document.getElementById('quantity');
+      const totalPriceEl = document.getElementById('totalPrice');
+      const orderForm = document.getElementById('orderForm');
+      const messageDiv = document.getElementById('message');
+
+      // The core dynamic total calculation engine
+      function updateTotal() {
+        if (!productSelect || !totalPriceEl) return;
+        
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+
+        if (!selectedOption || !productSelect.value) {
+          totalPriceEl.textContent = 'Total: R0';
+          return;
+        }
+
+        // Pull price from data-price attribute directly
+        const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+        const quantity = parseInt(quantityInput.value) || 1;
+        const total = price * quantity;
+
+        totalPriceEl.textContent = `Total: R${total}`;
+      }
+
+      // Event Listeners for running calculations instantly
+      productSelect.addEventListener('change', updateTotal);
+      quantityInput.addEventListener('input', updateTotal);
+
+      // Handle Submission process safely
+      if (orderForm) {
+        orderForm.addEventListener('submit', async function (event) {
+          event.preventDefault(); // Stop page reload immediately
+          
+          messageDiv.innerHTML = '<p style="color:orange; font-weight:bold;">Processing order, please wait...</p>';
+
+          const name = document.getElementById('name').value.trim();
+          const phone = document.getElementById('phone').value.trim();
+          const address = document.getElementById('address').value.trim();
+          const area = document.getElementById('area').value.trim();
+          const selectedOption = productSelect.options[productSelect.selectedIndex];
+          const productText = selectedOption ? selectedOption.textContent.trim() : '';
+          const quantity = parseInt(quantityInput.value) || 1;
+          const payment = document.getElementById('payment').value;
+          const submitMethod = document.getElementById('submitMethod').value;
+
+          const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+          const total = price * quantity;
+
+          // 1. Log to Supabase Database
+          if (supabaseClient) {
+            try {
+              await supabaseClient.from('orders').insert([{
+                customer_name: name,
+                phone: phone,
+                address: address,
+                area: area,
+                product: productText,
+                quantity: quantity,
+                payment_method: payment,
+                total_amount: total,
+                order_date: new Date().toISOString()
+              }]);
+            } catch (err) {
+              console.error("Database tracking bypass:", err);
+            }
+          }
+
+          // 2. Structure message details
+          let orderDetails = `New Stala'sGas Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📍 Address: ${address}\n🏠 Area: ${area}\n\n🛒 Product: ${productText}\n🔢 Quantity: ${quantity}\n💰 Total: R${total}\n💳 Payment: ${payment}\n\n`;
+
+          let bankingDetailsText = '';
+          if (payment === 'EFT') {
+            bankingDetailsText = `🏦 BANKING DETAILS\nAccount Name: Stala'sGas\nBank: FNB\nAccount Type: Cheque\nAccount Number: 62732719797\nBranch Code: 250655\n\nPlease message or email your proof of payment to: 072 574 4458`;
+            orderDetails += bankingDetailsText;
+          }
+
+          // Render updates to screen layout 
+          messageDiv.innerHTML = `
+            <p style="color:green; font-weight:bold; font-size: 1.1em;">✅ Order recorded successfully!</p>
+            ${payment === 'EFT' ? `<div style="background:#f4f4f4; padding:15px; border-radius:5px; margin-top:10px; white-space:pre-line; border-left:4px solid #007bff; color:#333; text-align:left;">${bankingDetailsText}</div>` : ''}
+            <p style="color:#555; font-size:0.9em; margin-top:5px;">Redirecting you to complete order submission...</p>
+          `;
+
+          // 3. Dispatch to WhatsApp or Email
+          setTimeout(() => {
+            if (submitMethod === 'whatsapp') {
+              const whatsappNumber = '27725744458';
+              const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
+              window.open(whatsappUrl, '_blank');
+            } else {
+              const emailSubject = encodeURIComponent("New Stala'sGas Order");
+              const emailBody = encodeURIComponent(orderDetails);
+              window.location.href = `mailto:info@stala.co.za?subject=${emailSubject}&body=${emailBody}`;
+            }
+          }, 1200);
+
+        });
+      }
+
+      // Run once at initialization
+      updateTotal();
+    });
+  </script>
 </body>
 </html>
