@@ -17,21 +17,19 @@ document.addEventListener('DOMContentLoaded', function() {
     totalPriceEl.textContent = `Total: R${total}`;
   }
 
-  // Event listeners
   productSelect.addEventListener('change', updateTotal);
   quantityInput.addEventListener('input', updateTotal);
 
-  // Initial calculation
   updateTotal();
 });
 
-// Supabase Client - Must be before submitOrder
+// Supabase Client
 const supabase = Supabase.createClient(
   'https://prgyyylrwxkzelydtaaw.supabase.co',
   'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY'
 );
 
-// Submit Order Function
+// Submit Order
 async function submitOrder() {
   const messageDiv = document.getElementById('message');
   messageDiv.innerHTML = '';
@@ -55,27 +53,25 @@ async function submitOrder() {
   const selectedPrice = parseFloat(productOption.dataset.price) || 0;
   const total = selectedPrice * quantity;
 
-  const orderData = {
-    customer_name: name,
-    phone: phone,
-    address: address,
-    area: area,
-    product: productText,
-    quantity: quantity,
-    payment_method: payment,
-    total_amount: total,
-    order_date: new Date().toISOString()
-  };
-
   // Save to Supabase
   try {
-    const { error } = await supabase.from('orders').insert([orderData]);
+    const { error } = await supabase.from('orders').insert([{
+      customer_name: name,
+      phone: phone,
+      address: address,
+      area: area,
+      product: productText,
+      quantity: quantity,
+      payment_method: payment,
+      total_amount: total,
+      order_date: new Date().toISOString()
+    }]);
     if (error) console.error('Supabase error:', error);
   } catch (err) {
-    console.log('Supabase save skipped (check table exists):', err);
+    console.log('Supabase save skipped:', err);
   }
 
-  // Build message
+  // Build order message
   let orderDetails = `*New Stala'sGas Order*\n\n` +
     `👤 Name: ${name}\n` +
     `📞 Phone: ${phone}\n` +
@@ -86,20 +82,24 @@ async function submitOrder() {
     `💰 Total: R${total}\n` +
     `💳 Payment: ${payment}\n\n`;
 
+  // Add banking details if EFT selected
   if (payment === 'EFT') {
-    orderDetails += `🏦 *Banking Details:*\n` +
-      `Stala'sGas\nFNB Cheque Account\nAcc No: 62732719797\n\n` +
-      `Please send proof of payment to 072 574 4458.\n`;
+    orderDetails += `🏦 *Banking Details for EFT:*\n` +
+      `Stala'sGas\n` +
+      `FNB Chq Acc\n` +
+      `Account Number: 62732719797\n\n` +
+      `Please send your proof of payment to 072 574 4458.\n`;
   }
 
   messageDiv.innerHTML = '<p style="color: green;">✅ Order submitted successfully!</p>';
 
+  // Submit via chosen method
   if (submitMethod === 'whatsapp') {
     const whatsappNumber = '27725744458';
     const whatsappUrl = `https://wa.me/\( {whatsappNumber}?text= \){encodeURIComponent(orderDetails)}`;
     window.open(whatsappUrl, '_blank');
   } else {
-    alert('Email submission ready:\n\n' + orderDetails);
+    alert('📧 Email submission ready:\n\n' + orderDetails);
   }
 
   setTimeout(() => { messageDiv.innerHTML = ''; }, 6000);
