@@ -5,18 +5,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const quantityInput = document.getElementById('quantity');
   const totalPriceEl = document.getElementById('totalPrice');
 
-  // Update total price
   function updateTotal() {
     const selectedOption = productSelect.options[productSelect.selectedIndex];
     if (!selectedOption || !selectedOption.dataset.price) {
       totalPriceEl.textContent = 'Total: R0';
       return;
     }
-    
     const price = parseFloat(selectedOption.dataset.price) || 0;
     const quantity = parseInt(quantityInput.value) || 1;
     const total = price * quantity;
-    
     totalPriceEl.textContent = `Total: R${total}`;
   }
 
@@ -28,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
   updateTotal();
 });
 
-// Supabase Client (Global)
+// Supabase Client - Must be before submitOrder
 const supabase = Supabase.createClient(
   'https://prgyyylrwxkzelydtaaw.supabase.co',
   'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY'
@@ -43,15 +40,14 @@ async function submitOrder() {
   const phone = document.getElementById('phone').value.trim();
   const address = document.getElementById('address').value.trim();
   const area = document.getElementById('area').value.trim();
-  const productSelect = document.getElementById('product');
-  const productOption = productSelect.options[productSelect.selectedIndex];
+  const productSelectEl = document.getElementById('product');
+  const productOption = productSelectEl.options[productSelectEl.selectedIndex];
   const productText = productOption ? productOption.textContent : '';
   const quantity = parseInt(document.getElementById('quantity').value) || 1;
   const payment = document.getElementById('payment').value;
   const submitMethod = document.getElementById('submitMethod').value;
 
-  // Validation
-  if (!name || !phone || !address || !area || !productSelect.value || !payment || !submitMethod) {
+  if (!name || !phone || !address || !area || !productSelectEl.value || !payment || !submitMethod) {
     messageDiv.innerHTML = '<p style="color: red;">Please fill in all fields.</p>';
     return;
   }
@@ -76,10 +72,10 @@ async function submitOrder() {
     const { error } = await supabase.from('orders').insert([orderData]);
     if (error) console.error('Supabase error:', error);
   } catch (err) {
-    console.log('Supabase save skipped (table may not exist yet):', err);
+    console.log('Supabase save skipped (check table exists):', err);
   }
 
-  // Build order message
+  // Build message
   let orderDetails = `*New Stala'sGas Order*\n\n` +
     `👤 Name: ${name}\n` +
     `📞 Phone: ${phone}\n` +
@@ -92,19 +88,15 @@ async function submitOrder() {
 
   if (payment === 'EFT') {
     orderDetails += `🏦 *Banking Details:*\n` +
-      `Stala'sGas\n` +
-      `FNB Cheque Account\n` +
-      `Acc No: 62732719797\n\n` +
+      `Stala'sGas\nFNB Cheque Account\nAcc No: 62732719797\n\n` +
       `Please send proof of payment to 072 574 4458.\n`;
   }
 
   messageDiv.innerHTML = '<p style="color: green;">✅ Order submitted successfully!</p>';
 
-  // Send via WhatsApp or Email
   if (submitMethod === 'whatsapp') {
     const whatsappNumber = '27725744458';
-    const encodedMessage = encodeURIComponent(orderDetails);
-    const whatsappUrl = `https://wa.me/\( {whatsappNumber}?text= \){encodedMessage}`;
+    const whatsappUrl = `https://wa.me/\( {whatsappNumber}?text= \){encodeURIComponent(orderDetails)}`;
     window.open(whatsappUrl, '_blank');
   } else {
     alert('Email submission ready:\n\n' + orderDetails);
