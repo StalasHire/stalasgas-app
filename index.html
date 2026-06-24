@@ -21,55 +21,57 @@
     <div class="form-card">
       <h2>Place Order Here</h2>
 
-      <input type="text" id="name" placeholder="Customer Name" required />
-      <input type="tel" id="phone" placeholder="Contact Number" required />
-      <input type="text" id="address" placeholder="Delivery Address" required />
-      <input type="text" id="area" placeholder="Area / Suburb" required />
-
-      <select id="product" required>
-        <option value="">Select Product</option>
+      <form id="orderForm" onsubmit="submitOrder(event)">
         
-        <optgroup label="🔄 Exchange">
-          <option value="exchange_5kg" data-price="250">5kg Exchange - R250</option>
-          <option value="exchange_7kg" data-price="325">7kg Exchange - R325</option>
-          <option value="exchange_9kg" data-price="380">9kg Exchange - R380</option>
-          <option value="exchange_14kg" data-price="580">14kg Exchange - R580</option>
-          <option value="exchange_19kg" data-price="750">19kg Exchange - R750</option>
-          <option value="exchange_48kg" data-price="1600">48kg Exchange - R1600</option>
-        </optgroup>
+        <input type="text" id="name" placeholder="Customer Name" required />
+        <input type="tel" id="phone" placeholder="Contact Number" required />
+        <input type="text" id="address" placeholder="Delivery Address" required />
+        <input type="text" id="area" placeholder="Area / Suburb" required />
 
-        <optgroup label="🛢️ Empty Cylinder">
-          <option value="cylinder_9kg" data-price="650">9kg Empty Cylinder - R650</option>
-          <option value="cylinder_48kg" data-price="1200">48kg Empty Cylinder - R1200</option>
-        </optgroup>
+        <select id="product" required>
+          <option value="">Select Product</option>
+          
+          <optgroup label="🔄 Exchange">
+            <option value="exchange_5kg" data-price="250">5kg Exchange - R250</option>
+            <option value="exchange_7kg" data-price="325">7kg Exchange - R325</option>
+            <option value="exchange_9kg" data-price="380">9kg Exchange - R380</option>
+            <option value="exchange_14kg" data-price="580">14kg Exchange - R580</option>
+            <option value="exchange_19kg" data-price="750">19kg Exchange - R750</option>
+            <option value="exchange_48kg" data-price="1600">48kg Exchange - R1600</option>
+          </optgroup>
 
-        <optgroup label="🔥 Cylinder + Gas">
-          <option value="combo_9kg" data-price="1030">9kg Cylinder + Gas - R1030</option>
-          <option value="combo_48kg" data-price="2800">48kg Cylinder + Gas - R2800</option>
-        </optgroup>
-      </select>
+          <optgroup label="🛢️ Empty Cylinder">
+            <option value="cylinder_9kg" data-price="650">9kg Empty Cylinder - R650</option>
+            <option value="cylinder_48kg" data-price="1200">48kg Empty Cylinder - R1200</option>
+          </optgroup>
 
-      <select id="payment" required>
-        <option value="">Payment Method</option>
-        <option value="Cash">Cash</option>
-        <option value="EFT">EFT</option>
-      </select>
+          <optgroup label="🔥 Cylinder + Gas">
+            <option value="combo_9kg" data-price="1030">9kg Cylinder + Gas - R1030</option>
+            <option value="combo_48kg" data-price="2800">48kg Cylinder + Gas - R2800</option>
+          </optgroup>
+        </select>
 
-      <div class="quantity-wrapper">
-        <label for="quantity">Quantity:</label>
-        <input id="quantity" type="number" value="1" min="1" required>
-      </div>
+        <select id="payment" required>
+          <option value="">Payment Method</option>
+          <option value="Cash">Cash</option>
+          <option value="EFT">EFT</option>
+        </select>
 
-      <select id="submitMethod" required>
-        <option value="whatsapp">Submit via WhatsApp</option>
-        <option value="email">Submit via Email</option>
-      </select>
+        <div class="quantity-wrapper">
+          <label for="quantity">Quantity:</label>
+          <input id="quantity" type="number" value="1" min="1" required>
+        </div>
 
-      <p id="totalPrice">Total: R0</p>
-      
-    
-      <button type="submit" onclick="submitOrder(event)">Submit Order</button>
-      <form onsubmit="submitOrder(event)">
+        <select id="submitMethod" required>
+          <option value="whatsapp">Submit via WhatsApp</option>
+          <option value="email">Submit via Email</option>
+        </select>
+
+        <p id="totalPrice">Total: R0</p>
+        
+        <button type="submit">Submit Order</button>
+
+      </form>
         
       <div id="message"></div>
     </div>
