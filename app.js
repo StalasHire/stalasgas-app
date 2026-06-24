@@ -1,90 +1,92 @@
-// Price calculation and form handling for Stala'sGas
+// Supabase Configuration - UPDATE THESE WITH YOUR OWN KEYS
+const SUPABASE_URL = '"https://prgyyylrwxkzelydtaaw.supabase.co';
+const SUPABASE_ANON_KEY = '"sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY";
 
-document.addEventListener('DOMContentLoaded', function() {
+co
+
+
+const supabase =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+// Real-time price calculation
+document.getElementById('product').addEventListener('change', calculateTotal);
+document.getElementById('quantity').addEventListener('input', calculateTotal);
+
+function calculateTotal() {
   const productSelect = document.getElementById('product');
-  const quantityInput = document.getElementById('quantity');
-  const totalPriceEl = document.getElementById('totalPrice');
+  const quantity = parseInt(document.getElementById('quantity').value) || 1;
+  const selectedOption = productSelect.options[productSelect.selectedIndex];
+  const price = selectedOption ? parseFloat(selectedOption.dataset.price) || 0 : 0;
   
-  // Update total price when product or quantity changes
-  function updateTotal() {
-    const selectedOption = productSelect.options[productSelect.selectedIndex];
-    const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
-    const quantity = parseInt(quantityInput.value) || 1;
-    const total = price * quantity;
-    totalPriceEl.textContent = `Total: R${total}`;
-  }
-  
-  productSelect.addEventListener('change', updateTotal);
-  quantityInput.addEventListener('input', updateTotal);
-  
-  // Initial total
-  updateTotal();
-});
+  const total = price * quantity;
+  document.getElementById('totalPrice').textContent = `Total: R${total}`;
+}
 
-// Submit order function
-function submitOrder() {
+// Submit Order
+async function submitOrder() {
+  const messageDiv = document.getElementById('message');
+  messageDiv.innerHTML = '';
+
+  // Get form values
   const name = document.getElementById('name').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const address = document.getElementById('address').value.trim();
   const area = document.getElementById('area').value.trim();
   const productSelect = document.getElementById('product');
-  const productOption = productSelect.options[productSelect.selectedIndex];
-  const productText = productOption.textContent;
-  const quantity = document.getElementById('quantity').value;
+  const product = productSelect.options[productSelect.selectedIndex].text;
   const payment = document.getElementById('payment').value;
+  const quantity = document.getElementById('quantity').value;
   const submitMethod = document.getElementById('submitMethod').value;
-  
-  const messageDiv = document.getElementById('message');
-  
-  // Basic validation
-  if (!name || !phone || !address || !area || !productSelect.value || !payment || !submitMethod) {
-    messageDiv.innerHTML = '<p class="error">Please fill in all fields.</p>';
+
+  if (!name || !phone || !address || !area || !product || !payment) {
+    messageDiv.innerHTML = '<span style="color:red;">Please fill all fields</span>';
     return;
   }
-  
-  const selectedPrice = parseFloat(productOption.getAttribute('data-price')) || 0;
-  const total = selectedPrice * parseInt(quantity);
-  
-  const orderDetails = `
-*New Order from Stala'sGas*
 
-👤 *Customer:* ${name}
-📞 *Phone:* ${phone}
-📍 *Address:* ${address}
-🏠 *Area:* ${area}
+  const totalPrice = document.getElementById('totalPrice').textContent;
 
-🛒 *Product:* ${productText}
-🔢 *Quantity:* ${quantity}
-💰 *Total:* R${total}
-💳 *Payment:* ${payment}
-  `.trim();
-  
-  messageDiv.innerHTML = '<p class="success">Order prepared successfully!</p>';
-  
-  if (submitMethod === 'whatsapp') {
-    // WhatsApp deep link
-    const whatsappNumber = '27725744458'; // Replace with actual business number
-    const encodedMessage = encodeURIComponent(orderDetails);
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-    window.open(whatsappUrl, '_blank');
-  } else if (submitMethod === 'email') {
-    // For demo - alert user
-    alert('Email submission simulated.\n\n' + orderDetails);
-    // In production, you could use mailto: or integrate with EmailJS / backend
+  const orderData = {
+    customer_name: name,
+    phone: phone,
+    address: address,
+    area: area,
+    product: product,
+    quantity: parseInt(quantity),
+    payment_method: payment,
+    total: totalPrice,
+    order_date: new Date().toISOString()
+  };
+
+  // Save to Supabase
+  try {
+    const { error } = await supabase.from('orders').insert([orderData]);
+    if (error) console.error('Supabase error:', error);
+  } catch (e) {
+    console.log('Supabase not configured yet - order saved locally only');
   }
-}
 
-// Optional: Supabase integration example (uncomment and configure if needed)
-/*
-const supabaseUrl = 'YOUR_SUPABASE_URL';
-const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
-const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
+  // WhatsApp or Email submission
+  const orderText = `*New Order*\n\n` +
+    `Name: ${name}\n` +
+    `Phone: ${phone}\n` +
+    `Address: ${address}\n` +
+    `Area: ${area}\n` +
+    `Product: ${product}\n` +
+    `Quantity: ${quantity}\n` +
+    `Payment: ${payment}\n` +
+    `${totalPrice}`;
 
-// To save order:
-async function saveToSupabase(orderData) {
-  const { data, error } = await supabase
-    .from('orders')
-    .insert([orderData]);
-  if (error) console.error(error);
+  if (submitMethod === 'whatsapp') {
+    const whatsappNumber = '27725744458'; // ← CHANGE TO YOUR NUMBER
+    const whatsappUrl = `https://wa.me/\( {whatsappNumber}?text= \){encodeURIComponent(orderText)}`;
+    window.open(whatsappUrl, '_blank');
+  } else {
+    // Email simulation
+    alert(`Order ready to send via Email:\n\n${orderText}`);
+  }
+
+  messageDiv.innerHTML = '<span style="color:green;">✅ Order submitted successfully!</span>';
+  setTimeout(() => { messageDiv.innerHTML = ''; }, 5000);
 }
-*/
