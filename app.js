@@ -16,12 +16,21 @@ document.addEventListener('DOMContentLoaded', function () {
     
     const selectedOption = productSelect.options[productSelect.selectedIndex];
 
-    if (!selectedOption || !selectedOption.getAttribute('data-price')) {
+    // If no valid option is explicitly selected, reset display to R0
+    if (!selectedOption || !productSelect.value) {
       totalPriceEl.textContent = 'Total: R0';
       return;
     }
 
-    const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+    // Extraction Strategy: Try data-price attribute first. If unavailable, extract the numerical value directly from text string.
+    let price = parseFloat(selectedOption.getAttribute('data-price'));
+    
+    if (isNaN(price)) {
+      const text = selectedOption.textContent;
+      const match = text.match(/R(\d+)/);
+      price = match ? parseFloat(match[1]) : 0;
+    }
+
     const quantity = parseInt(quantityInput.value) || 1;
     const total = price * quantity;
 
@@ -56,14 +65,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('payment')) document.getElementById('payment').value = saved.payment || '';
     if (document.getElementById('submitMethod')) document.getElementById('submitMethod').value = saved.submitMethod || '';
 
-    // Wait slightly for the DOM options tree to bind values before calculating
+    // Short execution delay to guarantee select option rendering before running calculations
     setTimeout(updateTotal, 50);
   }
 
   // Restore saved data on load
   restoreFormData();
 
-  // Event listeners for real-time calculations and saving
+  // Event listeners for calculations and localStorage handling
   if (productSelect) {
     productSelect.addEventListener('change', () => {
       updateTotal();
@@ -82,22 +91,19 @@ document.addEventListener('DOMContentLoaded', function () {
     el.addEventListener('change', saveFormData);
   });
 
-  // Attach event listener straight to form submission if a form selector exists
-  const orderForm = document.querySelector('form');
-  if (orderForm) {
-    orderForm.addEventListener('submit', submitOrder);
-  }
+  // Explicit initialization calculation check
+  updateTotal();
 });
 
 // Primary Async Order Submission System
 async function submitOrder(event) {
-  if (event) event.preventDefault(); // Stop page from refreshing instantly
+  if (event) event.preventDefault(); // Halt instant browser window refreshes
 
   const messageDiv = document.getElementById('message');
   if (!messageDiv) return;
   messageDiv.innerHTML = '<p style="color:orange; font-weight:bold;">Processing order, please wait...</p>';
 
-  // Capture current values
+  // Capture current form element datasets
   const name = document.getElementById('name').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const address = document.getElementById('address').value.trim();
@@ -109,16 +115,21 @@ async function submitOrder(event) {
   const payment = document.getElementById('payment').value.trim();
   const submitMethod = document.getElementById('submitMethod').value.trim();
 
-  // Field validation
+  // Validation Check
   if (!name || !phone || !address || !area || !productSelectEl.value || !payment || !submitMethod) {
     messageDiv.innerHTML = '<p style="color:red; font-weight:bold;">⚠️ Please fill in all required fields.</p>';
     return;
   }
 
-  const selectedPrice = parseFloat(productOption.getAttribute('data-price')) || 0;
+  // Calculation for validation/messaging payload
+  let selectedPrice = parseFloat(productOption.getAttribute('data-price'));
+  if (isNaN(selectedPrice)) {
+    const match = productText.match(/R(\d+)/);
+    selectedPrice = match ? parseFloat(match[1]) : 0;
+  }
   const total = selectedPrice * quantity;
 
-  // 1. Database Submission (Supabase)
+  // 1. Write Transaction Data to Database (Supabase)
   let databaseSuccess = true;
   if (supabase) {
     try {
@@ -137,44 +148,42 @@ async function submitOrder(event) {
         }]);
 
       if (error) {
-        console.error('Supabase Error:', error);
+        console.error('Supabase Error Trace:', error);
         databaseSuccess = false;
       }
     } catch (err) {
-      console.error('Connection Exception:', err);
+      console.error('Database connection threw exception:', err);
       databaseSuccess = false;
     }
   } else {
-    console.error('Supabase client was not initialized properly.');
+    console.error('Supabase client failed to initiate properly.');
     databaseSuccess = false;
   }
 
-  // 2. Build Messaging Strings
+  // 2. Format Communication Strings
   let orderDetails = `New Stala'sGas Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📍 Address: ${address}\n🏠 Area: ${area}\n\n🛒 Product: ${productText}\n🔢 Quantity: ${quantity}\n💰 Total: R${total}\n💳 Payment: ${payment}\n\n`;
 
   let bankingDetailsText = '';
-  // Force clean casing checks to capture 'eft', 'EFT', or 'Eft'
   if (payment.toUpperCase().includes('EFT')) {
     bankingDetailsText = `🏦 BANKING DETAILS\nAccount Name: Stala'sGas\nBank: FNB\nAccount Type: Cheque\nAccount Number: 62732719797\nBranch Code: 250655\n\nPlease email or WhatsApp your proof of payment to: 072 574 4458`;
     orderDetails += bankingDetailsText;
   }
 
-  // 3. UI Display Output
+  // 3. UI Status Delivery Visualisation
   if (databaseSuccess) {
     messageDiv.innerHTML = `
       <p style="color:green; font-weight:bold; font-size: 1.1em;">✅ Order recorded successfully!</p>
       ${payment.toUpperCase().includes('EFT') ? `<div style="background:#f4f4f4; padding:15px; border-radius:5px; margin-top:10px; white-space:pre-line; border-left:4px solid #007bff; color:#333; text-align:left;">${bankingDetailsText.replace(/\n/g, '<br>')}</div>` : ''}
-      <p style="color:#555; font-size:0.9em; margin-top:5px;">Redirecting you to complete message dispatch...</p>
+      <p style="color:#555; font-size:0.9em; margin-top:5px;">Opening application to complete order submission...</p>
     `;
   } else {
-    // Show a warning but still allow communication dispatch fallback
     messageDiv.innerHTML = `
-      <p style="color:#d9534f; font-weight:bold;">⚠️ Order info processed with logging latency, proceeding to messaging window...</p>
+      <p style="color:#d9534f; font-weight:bold;">⚠️ Network latency detected. Proceeding to submit your message directly...</p>
       ${payment.toUpperCase().includes('EFT') ? `<div style="background:#f4f4f4; padding:15px; border-radius:5px; margin-top:10px; white-space:pre-line; border-left:4px solid #007bff; color:#333; text-align:left;">${bankingDetailsText.replace(/\n/g, '<br>')}</div>` : ''}
     `;
   }
 
-  // 4. Dispatch Routings (WhatsApp / Email)
+  // 4. Output Routing Redirect Execution
   setTimeout(() => {
     if (submitMethod === 'whatsapp') {
       const whatsappNumber = '27725744458';
@@ -186,5 +195,5 @@ async function submitOrder(event) {
       const mailtoLink = `mailto:info@stala.co.za?subject=${emailSubject}&body=${emailBody}`;
       window.location.href = mailtoLink;
     }
-  }, 1200); // 1.2 second brief delay to allow local state rendering visibility
+  }, 1500); // 1.5-second timeout window provides visibility for onscreen billing alerts before shifting tabs
 }
