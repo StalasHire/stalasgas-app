@@ -1,9 +1,11 @@
-// 1. Initialization (Fixed 'Const' typo)
+// ==========================================================================
+// 1. Initialization & Configuration
+// ==========================================================================
 const SUPABASE_URL = 'https://prgyyylrwxkzelydtaaw.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY';
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 2. Unified Price List (Moved to the top scope)
+// 2. Unified Price List
 const prices = {
   exchange_5kg: 250,
   exchange_7kg: 325,
@@ -19,7 +21,9 @@ const prices = {
   combo_48kg: 2800 
 };
 
-// 3. Live Price Calculator (Moved outside submitOrder so it works immediately)
+// ==========================================================================
+// 3. Live Price Calculator
+// ==========================================================================
 function updateTotalPrice() {
   const product = document.getElementById("product").value;
   const quantity = parseInt(document.getElementById("quantity").value) || 1;
@@ -29,34 +33,36 @@ function updateTotalPrice() {
   document.getElementById("totalPrice").innerHTML = "Total: R" + total;
 }
 
-// Event listeners to update price when product OR quantity changes
+// Event listeners to update price dynamically when values change
 document.getElementById("product").addEventListener("change", updateTotalPrice);
 document.getElementById("quantity").addEventListener("input", updateTotalPrice);
 
+
+// ==========================================================================
 // 4. Submit Order Function
+// ==========================================================================
 async function submitOrder() {
-  // Get Form Values
+  // Get Form Inputs
   const name = document.getElementById('name').value;
   const phone = document.getElementById('phone').value;
   const address = document.getElementById('address').value;
   const area = document.getElementById('area').value;
   const product = document.getElementById('product').value;
   const quantity = parseInt(document.getElementById('quantity').value) || 1;
-  
-  // Added missing payment field (Ensure you have an element with id="payment" in your HTML)
   const payment = document.getElementById('payment') ? document.getElementById('payment').value : 'Not Specified';
+  const submitMethod = document.getElementById('submitMethod').value; // Added
 
-  // Calculate total amount
+  // Basic Validation
+  if (!name || !phone || !address || !product || !submitMethod) {
+    document.getElementById('message').innerHTML = '<span style="color:red;">Please fill in all required fields.</span>';
+    return;
+  }
+
+  // Calculate final amount
   const amount = (prices[product] || 0) * quantity;
 
-  // Insert Customer
-  const customer = {
-    name: name,
-    phone: phone,
-    address: address,
-    area: area
-  };
-
+  // Insert Into Supabase (Customers Table)
+  const customer = { name, phone, address, area };
   const { data: customerData, error: customerError } = await client
     .from('customers')
     .insert([customer])
@@ -64,13 +70,13 @@ async function submitOrder() {
 
   if (customerError) {
     console.error('Customer insert failed:', customerError);
-    document.getElementById('message').innerHTML = 'Error submitting customer details';
+    document.getElementById('message').innerHTML = 'Error saving customer details';
     return;
   }
 
   const customerId = customerData[0].id;
 
-  // Insert Order
+  // Insert Into Supabase (Orders Table)
   const { error: orderError } = await client
     .from('orders')
     .insert([{
@@ -82,12 +88,12 @@ async function submitOrder() {
 
   if (orderError) {
     console.error('Order insert failed:', orderError);
-    document.getElementById('message').innerHTML = 'Error submitting order';
+    document.getElementById('message').innerHTML = 'Error saving order';
     return;
   }
 
-  // Trigger WhatsApp Message
-  const message = `NEW GAS ORDER
+  // Construct Uniform Message Payload
+  const messageText = `NEW GAS ORDER
 
 Customer: ${name}
 Phone: ${phone}
@@ -99,32 +105,21 @@ Qty: ${quantity}
 Total: R${amount}
 Payment Method: ${payment}`;
 
-  window.open(
-    `https://wa.me/27725744458?text=${encodeURIComponent(message)}`,
-    '_blank'
-  );
-
-  document.getElementById('message').innerHTML = 'Order Submitted Successfully';
-}
-  // 5. Route Based on Choice
+  // 5. Route Based on Choice (Now nested properly inside the function!)
   if (submitMethod === 'whatsapp') {
-    // Route to WhatsApp
     window.open(
       `https://wa.me/27725744458?text=${encodeURIComponent(messageText)}`,
       '_blank'
     );
-    document.getElementById('message').innerHTML = 'Order Saved! Opening WhatsApp...';
+    document.getElementById('message').innerHTML = 'Order Submitted! Opening WhatsApp...';
     
   } else if (submitMethod === 'email') {
-    // Route to Email
-    
-    // METHOD A: Simple "mailto" link (Opens user's default Mail app pre-filled)
+    // METHOD A: Simple "mailto" link pointing directly to your business inbox
     const emailSubject = encodeURIComponent(`New Gas Order - ${name}`);
     const emailBody = encodeURIComponent(messageText);
     window.location.href = `mailto:info@stala.co.za?subject=${emailSubject}&body=${emailBody}`;
     
     /* // METHOD B: Silent Background Email via EmailJS (Alternative setup)
-    // To switch to this, uncomment this block and set up your free account at emailjs.com
     emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
         customer_name: name,
         customer_phone: phone,
@@ -141,6 +136,6 @@ Payment Method: ${payment}`;
     });
     */
     
-    document.getElementById('message').innerHTML = 'Order Saved! Opening Email Client...';
-    }
-      
+    document.getElementById('message').innerHTML = 'Order Submitted! Opening Email Client...';
+  }
+}
