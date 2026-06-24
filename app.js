@@ -1,27 +1,55 @@
+// 1. Initialization (Fixed 'Const' typo)
 const SUPABASE_URL = 'https://prgyyylrwxkzelydtaaw.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY';
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// 2. Unified Price List (Moved to the top scope)
 const prices = {
-  '5kg': 250,
-  '7kg': 325,
-  '9kg': 380,
-  '14kg': 580,
-  '19kg': 750,
-  '48kg': 1600
+  exchange_5kg: 250,
+  exchange_7kg: 325,
+  exchange_9kg: 380,
+  exchange_14kg: 580,
+  exchange_19kg: 750,
+  exchange_48kg: 1600,
+
+  cylinder_9kg: 650,
+  cylinder_48kg: 1200,
+
+  combo_9kg: 1030, 
+  combo_48kg: 2800 
 };
 
+// 3. Live Price Calculator (Moved outside submitOrder so it works immediately)
+function updateTotalPrice() {
+  const product = document.getElementById("product").value;
+  const quantity = parseInt(document.getElementById("quantity").value) || 1;
+  const basePrice = prices[product] || 0;
+  const total = basePrice * quantity;
+
+  document.getElementById("totalPrice").innerHTML = "Total: R" + total;
+}
+
+// Event listeners to update price when product OR quantity changes
+document.getElementById("product").addEventListener("change", updateTotalPrice);
+document.getElementById("quantity").addEventListener("input", updateTotalPrice);
+
+// 4. Submit Order Function
 async function submitOrder() {
+  // Get Form Values
   const name = document.getElementById('name').value;
   const phone = document.getElementById('phone').value;
   const address = document.getElementById('address').value;
   const area = document.getElementById('area').value;
   const product = document.getElementById('product').value;
-  const quantity = parseInt(document.getElementById('quantity').value);
+  const quantity = parseInt(document.getElementById('quantity').value) || 1;
+  
+  // Added missing payment field (Ensure you have an element with id="payment" in your HTML)
+  const payment = document.getElementById('payment') ? document.getElementById('payment').value : 'Not Specified';
 
-  const amount = prices[product] * quantity;
+  // Calculate total amount
+  const amount = (prices[product] || 0) * quantity;
 
-  // Single customer object, single insert
+  // Insert Customer
   const customer = {
     name: name,
     phone: phone,
@@ -36,12 +64,13 @@ async function submitOrder() {
 
   if (customerError) {
     console.error('Customer insert failed:', customerError);
-    document.getElementById('message').innerHTML = 'Error submitting order';
+    document.getElementById('message').innerHTML = 'Error submitting customer details';
     return;
   }
 
   const customerId = customerData[0].id;
 
+  // Insert Order
   const { error: orderError } = await client
     .from('orders')
     .insert([{
@@ -56,8 +85,9 @@ async function submitOrder() {
     document.getElementById('message').innerHTML = 'Error submitting order';
     return;
   }
-  const message =
-`NEW GAS ORDER
+
+  // Trigger WhatsApp Message
+  const message = `NEW GAS ORDER
 
 Customer: ${name}
 Phone: ${phone}
@@ -66,40 +96,13 @@ Area: ${area}
 
 Product: ${product}
 Qty: ${quantity}
+Total: R${amount}
+Payment Method: ${payment}`;
 
-Payment: ${payment}`;
+  window.open(
+    `https://wa.me/27725744458?text=${encodeURIComponent(message)}`,
+    '_blank'
+  );
 
-window.open(
-`https://wa.me/27725744458?text=${encodeURIComponent(message)}`,
-'_blank'
-);
-  const prices = {
-
-exchange_5kg: 250,
-exchange_7kg: 325,
-exchange_9kg: 380,
-exchange_14kg: 580,
-exchange_19kg: 750,
-exchange_48kg: 1600,
-
-cylinder_9kg: 650,
-cylinder_48kg: 1200,
-
-combo_9kg: 1030, // 650 + 380
-combo_48kg: 2800 // 1200 + 1600
-
-};
-document
-.getElementById("product")
-.addEventListener("change", function(){
-
-const product = this.value;
-
-const total = prices[product] || 0;
-
-document.getElementById("totalPrice")
-.innerHTML = "Total: R" + total;
-
-});
   document.getElementById('message').innerHTML = 'Order Submitted Successfully';
 }
