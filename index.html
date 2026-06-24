@@ -1,137 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Stala'sGas Orders</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stala'sGas Orders</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <div class="header">
-    <img src="StalasGas_Logo.png" alt="Stala'sGas Logo" class="logo">
-    <p>Cook Smart Use Gas.</p>
-</div>
-</header>
-  <div class="container">
 
+  <header>
     <div class="header">
-  
+      <img src="StalasGas_Logo.png" alt="Stala'sGas Logo" class="logo">
+      <p>Cook Smart Use Gas.</p>
     </div>
+  </header>
 
+  <div class="container">
     <div class="form-card">
+      <h2>Place Order Here</h2>
 
-        <h2>Place Order Here </h2>
+      <input type="text" id="name" placeholder="Customer Name" required />
+      <input type="tel" id="phone" placeholder="Contact Number" required />
+      <input type="text" id="address" placeholder="Delivery Address" required />
+      <input type="text" id="area" placeholder="Area / Suburb" required />
 
-        <!-- all your inputs -->
+      <select id="product" required>
+        <option value="">Select Product</option>
+        
+        <optgroup label="🔄 Exchange">
+          <option value="exchange_5kg">5kg Exchange - R250</option>
+          <option value="exchange_7kg">7kg Exchange - R325</option>
+          <option value="exchange_9kg">9kg Exchange - R380</option>
+          <option value="exchange_14kg">14kg Exchange - R580</option>
+          <option value="exchange_19kg">19kg Exchange - R750</option>
+          <option value="exchange_48kg">48kg Exchange - R1600</option>
+        </optgroup>
 
-  
-  
+        <optgroup label="🛢️ Empty Cylinder">
+          <option value="cylinder_9kg">9kg Empty Cylinder - R650</option>
+          <option value="cylinder_48kg">48kg Empty Cylinder - R1200</option>
+        </optgroup>
 
+        <optgroup label="🔥 Cylinder + Gas">
+          <option value="combo_9kg">9kg Cylinder + Gas - R1030</option>
+          <option value="combo_48kg">48kg Cylinder + Gas - R2800</option>
+        </optgroup>
+      </select>
+
+      <select id="payment" required>
+        <option value="">Payment Method</option>
+        <option value="Cash">Cash</option>
+        <option value="EFT">EFT</option>
+      </select>
+
+      <div class="quantity-wrapper">
+        <label for="quantity">Quantity:</label>
+        <input id="quantity" type="number" value="1" min="1" required>
+      </div>
+
+      <p id="totalPrice">Total: R0</p>
+      
+      <button onclick="submitOrder()">Submit Order</button>
+      
+      <div id="message"></div>
     </div>
+  </div>
 
-</div>
-<input
-    type="text"
-    id="name"
-    placeholder="Customer Name"
-    required
-/>
-
-<input
-    type="tel"
-    id="phone"
-    placeholder="Contact Number"
-    required
-/>
-<input
-  type="text"
-  id="address"
-  placeholder="Delivery Address"
-  required
-/>
-<input
-  type="text"
-  id="area"
-  placeholder="Area / Suburb"
-  required
-/>
-
-
-</select>
-  <select id="product" required>
-<option value="">Select Product</option>
-
-<optgroup label="🔄 Exchange">
-
-<option value="exchange_5kg">
-5kg Exchange - R250
-</option>
-
-<option value="exchange_7kg">
-7kg Exchange - R325
-</option>
-
-<option value="exchange_9kg">
-9kg Exchange - R380
-</option>
-
-<option value="exchange_14kg">
-14kg Exchange - R580
-</option>
-
-<option value="exchange_19kg">
-19kg Exchange - R750
-</option>
-
-<option value="exchange_48kg">
-48kg Exchange - R1600
-</option>
-
-</optgroup>
-
-<optgroup label="🛢️ Empty Cylinder">
-
-<option value="cylinder_9kg">
-9kg Empty Cylinder - R650
-</option>
-
-<option value="cylinder_48kg">
-48kg Empty Cylinder - R1200
-</option>
-
-</optgroup>
-
-<optgroup label="🔥 Cylinder + Gas">
-
-<option value="combo_9kg">
-9kg Cylinder + Gas
-</option>
-
-<option value="combo_48kg">
-48kg Cylinder + Gas
-</option>
-
-</optgroup>
-
-  </select>
-  
-
-
-  <select id="payment">
-    <option value="">Payment Method</option>
-    <option value="Cash">Cash</option>
-    <option value="EFT">EFT</option>
-  </select>
-<input id="quantity" type="number" value="1">
-<button onclick="submitOrder()">Submit Order</button>
-<div id="message"></div>
-</div>
-  <p id="totalPrice">
-Total: R0
-  </p>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
