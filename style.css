@@ -1,8 +1,36 @@
-/* Header Background & Layout */
+/* ==========================================================================
+   1. Design Variables & Global Resets
+   ========================================================================== */
+:root {
+  --primary-color: #e65100;     /* Gas Orange/Accent */
+  --secondary-color: #0d47a1;   /* Professional Deep Blue */
+  --text-color: #333333;
+  --bg-light: #f5f7fa;
+  --card-bg: #ffffff;
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--bg-light);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   2. Header & Logo Styling (High Visibility)
+   ========================================================================== */
 .site-header {
-  background-color: #ffffff; /* Change to match your brand (e.g., #f8f9fa or dark #1a1a1a) */
-  padding: 20px 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Soft shadow to make header pop */
+  background-color: #ffffff;
+  padding: 25px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   width: 100%;
 }
 
@@ -12,111 +40,157 @@
   padding: 0 20px;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centers logo and text */
+  align-items: center;
   text-align: center;
 }
 
-/* Logo Sizing and Visibility */
 .logo-wrapper {
-  background: transparent; /* If your logo has a dark background, you can set this to white or vice-versa */
-  padding: 5px;
-  border-radius: 8px;
   display: inline-block;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .main-logo {
   display: block;
   width: 100%;
-  max-width: 220px; /* Adjust this value up or down to find your perfect logo size */
-  height: auto;     /* Maintains original image proportions so it doesn't stretch */
-  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.15)); /* Adds a subtle depth map around the logo graphic */
+  max-width: 240px; /* Adjust this to size your logo perfectly */
+  height: auto;
+  filter: drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.1));
 }
 
-/* Tagline Styling */
 .tagline {
-  font-family: Arial, sans-serif;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #e65100; /* A vibrant gas-orange/blue theme color. Change to match your brand! */
-  margin: 0;
+  color: var(--primary-color);
   letter-spacing: 0.5px;
 }
-body{
-    margin:0;
-    padding:20px;
-    font-family:Arial,sans-serif;
 
-    background:linear-gradient(
-        180deg,
-        #ff7b00,
-        #ffffff
-    );
-
-    min-height:100vh;
+/* ==========================================================================
+   3. Form Layout & Container
+   ========================================================================== */
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 0 20px;
 }
 
-.header{
-    text-align:center;
-    margin-bottom:25px;
+.form-card {
+  background-color: var(--card-bg);
+  padding: 30px 25px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
-.logo{
-    width:140px;
-    display:block;
-    margin:auto;
+.form-card h2 {
+  color: var(--secondary-color);
+  margin-bottom: 25px;
+  font-size: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+  border-bottom: 2px solid var(--bg-light);
+  padding-bottom: 10px;
 }
 
-.header h1{
-    color:#000;
-    margin:10px 0 0 0;
+/* ==========================================================================
+   4. Inputs, Selects & Form Fields
+   ========================================================================== */
+input[type="text"],
+input[type="tel"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 18px;
+  border: 1px solid #ccd1d9;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  color: var(--text-color);
+  background-color: #fafbfc;
+  transition: var(--transition);
+  outline: none;
 }
 
-.header p{
-    color:#444;
+input:focus,
+select:focus {
+  border-color: var(--secondary-color);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.1);
 }
 
-.container{
-    max-width:550px;
-    margin:auto;
-
-    background:white;
-
-    padding:25px;
-
-    border-radius:18px;
-
-    box-shadow:0 8px 30px rgba(0,0,0,.15);
+/* Quantity Field Alignment */
+.quantity-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  background-color: var(--bg-light);
+  padding: 10px 15px;
+  border-radius: var(--border-radius);
 }
 
-.container h2{
-    text-align:center;
-    color:#ff6600;
+.quantity-wrapper label {
+  font-weight: 600;
+  color: var(--text-color);
 }
 
-input,
-select{
-    width:100%;
-    padding:15px;
-    margin:10px 0;
-    border:1px solid #ddd;
-    border-radius:8px;
-    font-size:16px;
-    box-sizing:border-box;
+.quantity-wrapper input[type="number"] {
+  width: 90px;
+  margin-bottom: 0;
+  text-align: center;
 }
 
-button{
-    width:100%;
-    padding:15px;
-    background:#ff6600;
-    color:white;
-    border:none;
-    border-radius:8px;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
+/* ==========================================================================
+   5. Pricing, Buttons & Feedback Status
+   ========================================================================== */
+#totalPrice {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+  text-align: center;
+  margin: 20px 0;
+  padding: 10px;
+  background: rgba(13, 71, 161, 0.05);
+  border-radius: var(--border-radius);
 }
 
-button:hover{
-    background:#e55d00;
+button {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(230, 81, 0, 0.2);
 }
+
+button:hover {
+  background-color: #cc4700;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(230, 81, 0, 0.3);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+#message {
+  margin-top: 15px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #2e7d32; /* Green success color */
+}
+
+/* Responsive Tweaks */
+@media (max-width: 480px) {
+  .container {
+    margin: 20px auto;
+  }
+  .form-card {
+    padding: 20px 15px;
+  }
+  }
+  
