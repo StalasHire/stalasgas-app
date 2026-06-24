@@ -1,40 +1,27 @@
-// app.js - Stala'sGas Order Form
+// Price calculation and form handling for Stala'sGas
 
 document.addEventListener('DOMContentLoaded', function() {
   const productSelect = document.getElementById('product');
   const quantityInput = document.getElementById('quantity');
   const totalPriceEl = document.getElementById('totalPrice');
-
-  // Update total price
+  
+  // Update total price when product or quantity changes
   function updateTotal() {
     const selectedOption = productSelect.options[productSelect.selectedIndex];
-    if (!selectedOption || !selectedOption.dataset.price) {
-      totalPriceEl.textContent = 'Total: R0';
-      return;
-    }
-    
-    const price = parseFloat(selectedOption.dataset.price) || 0;
+    const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
     const quantity = parseInt(quantityInput.value) || 1;
     const total = price * quantity;
-    
     totalPriceEl.textContent = `Total: R${total}`;
   }
-
-  // Event listeners
+  
   productSelect.addEventListener('change', updateTotal);
   quantityInput.addEventListener('input', updateTotal);
-
-  // Initial calculation
+  
+  // Initial total
   updateTotal();
 });
 
-// Supabase Client (Global)
-const supabase = Supabase.createClient(
-  'https://prgyyylrwxkzelydtaaw.supabase.co',
-  'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY'
-);
-
-// Submit Order Function
+// Submit order function
 async function submitOrder() {
   const messageDiv = document.getElementById('message');
   messageDiv.innerHTML = '';
@@ -45,7 +32,7 @@ async function submitOrder() {
   const area = document.getElementById('area').value.trim();
   const productSelect = document.getElementById('product');
   const productOption = productSelect.options[productSelect.selectedIndex];
-  const productText = productOption ? productOption.textContent : '';
+  const productText = productOption.textContent;
   const quantity = parseInt(document.getElementById('quantity').value) || 1;
   const payment = document.getElementById('payment').value;
   const submitMethod = document.getElementById('submitMethod').value;
@@ -56,7 +43,7 @@ async function submitOrder() {
     return;
   }
 
-  const selectedPrice = parseFloat(productOption.dataset.price) || 0;
+  const selectedPrice = parseFloat(productOption.getAttribute('data-price')) || 0;
   const total = selectedPrice * quantity;
 
   const orderData = {
@@ -74,12 +61,14 @@ async function submitOrder() {
   // Save to Supabase
   try {
     const { error } = await supabase.from('orders').insert([orderData]);
-    if (error) console.error('Supabase error:', error);
+    if (error) {
+      console.error('Supabase save error:', error);
+    }
   } catch (err) {
-    console.log('Supabase save skipped (table may not exist yet):', err);
+    console.log('Supabase not fully set up yet or table missing:', err);
   }
 
-  // Build order message
+  // Build message
   let orderDetails = `*New Stala'sGas Order*\n\n` +
     `👤 Name: ${name}\n` +
     `📞 Phone: ${phone}\n` +
@@ -90,25 +79,35 @@ async function submitOrder() {
     `💰 Total: R${total}\n` +
     `💳 Payment: ${payment}\n\n`;
 
+  // Add EFT banking details
   if (payment === 'EFT') {
-    orderDetails += `🏦 *Banking Details:*\n` +
+    orderDetails += `🏦 *Banking Details for EFT:*\n` +
       `Stala'sGas\n` +
       `FNB Cheque Account\n` +
       `Acc No: 62732719797\n\n` +
-      `Please send proof of payment to 072 574 4458.\n`;
+      `Please send proof of payment to 072 574 4458 after transfer.\n\n`;
   }
 
   messageDiv.innerHTML = '<p style="color: green;">✅ Order submitted successfully!</p>';
 
-  // Send via WhatsApp or Email
+  // Submit via chosen method
   if (submitMethod === 'whatsapp') {
-    const whatsappNumber = '27725744458';
+    const whatsappNumber = '27725744458'; // Your number
     const encodedMessage = encodeURIComponent(orderDetails);
-    const whatsappUrl = `https://wa.me/\( {whatsappNumber}?text= \){encodedMessage}`;
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
   } else {
     alert('Email submission ready:\n\n' + orderDetails);
   }
 
-  setTimeout(() => { messageDiv.innerHTML = ''; }, 6000);
+  // Clear form optionally
+  setTimeout(() => {
+    messageDiv.innerHTML = '';
+  }, 6000);
 }
+
+// Supabase Client
+const supabase = Supabase.createClient(
+  'https://prgyyylrwxkzelydtaaw.supabase.co',
+  'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY'
+);
