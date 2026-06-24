@@ -73,6 +73,17 @@ window.open(
 `https://wa.me/27725744458?text=${encodeURIComponent(message)}`,
 '_blank'
 );
+document
+.getElementById("product")
+.addEventListener("change", function(){
 
+const product = this.value;
+
+const total = prices[product] || 0;
+
+document.getElementById("totalPrice")
+.innerHTML = "Total: R" + total;
+
+});
   document.getElementById('message').innerHTML = 'Order Submitted Successfully';
 }
