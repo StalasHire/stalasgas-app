@@ -7,26 +7,27 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="site-header">
-  <div class="header-container">
-    <div class="logo-wrapper">
-      <img src="StalasGas_Logo.png" alt="Stala'sGas Logo" class="main-logo">
+
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo-wrapper">
+        <img src="StalasGas_Logo.png" alt="Stala'sGas Logo" class="main-logo">
+      </div>
+      <p class="tagline">Cook Smart. Use Gas.</p>
     </div>
-    <p class="tagline">Cook Smart.Use Gas.</p>
-  </div>
-</header>
-
-
+  </header>
 
   <div class="container">
     <div class="form-card">
       <h2>Place Order Here</h2>
 
+      <!-- Customer Inputs -->
       <input type="text" id="name" placeholder="Customer Name" required />
       <input type="tel" id="phone" placeholder="Contact Number" required />
       <input type="text" id="address" placeholder="Delivery Address" required />
       <input type="text" id="area" placeholder="Area / Suburb" required />
 
+      <!-- Product Dropdown -->
       <select id="product" required>
         <option value="">Select Product</option>
         
@@ -50,26 +51,33 @@
         </optgroup>
       </select>
 
+      <!-- Payment Method -->
       <select id="payment" required>
         <option value="">Payment Method</option>
         <option value="Cash">Cash</option>
         <option value="EFT">EFT</option>
       </select>
 
+      <!-- Quantity Selection -->
       <div class="quantity-wrapper">
         <label for="quantity">Quantity:</label>
         <input id="quantity" type="number" value="1" min="1" required>
       </div>
 
+      <!-- Real-time price breakdown -->
       <p id="totalPrice">Total: R0</p>
       
+      <!-- Action Button -->
       <button onclick="submitOrder()">Submit Order</button>
       
+      <!-- Submission Feedback Status -->
       <div id="message"></div>
     </div>
   </div>
 
+  <!-- External & Local Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="app.js"></script>
 </body>
 </html>
+
