@@ -56,6 +56,23 @@ async function submitOrder() {
     document.getElementById('message').innerHTML = 'Error submitting order';
     return;
   }
+  const message =
+`NEW GAS ORDER
+
+Customer: ${name}
+Phone: ${phone}
+Address: ${address}
+Area: ${area}
+
+Product: ${product}
+Qty: ${quantity}
+
+Payment: ${payment}`;
+
+window.open(
+`https://wa.me/27725744458?text=${encodeURIComponent(message)}`,
+'_blank'
+);
 
   document.getElementById('message').innerHTML = 'Order Submitted Successfully';
 }
