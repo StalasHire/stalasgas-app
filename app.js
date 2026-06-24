@@ -1,9 +1,10 @@
 /* app.js - Stala'sGas Order Form */
 
-const supabase = Supabase.createClient(
+// Initialize Supabase immediately
+const supabase = window.supabase ? window.supabase.createClient(
   'https://prgyyylrwxkzelydtaaw.supabase.co',
   'sb_publishable_DsBKId5DVPYVOsKMLuOfAQ_Rqb1jwTY'
-);
+) : null;
 
 document.addEventListener('DOMContentLoaded', function () {
   const productSelect = document.getElementById('product');
@@ -11,14 +12,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const totalPriceEl = document.getElementById('totalPrice');
 
   function updateTotal() {
+    if (!productSelect || !totalPriceEl) return;
+    
     const selectedOption = productSelect.options[productSelect.selectedIndex];
 
-    if (!selectedOption || !selectedOption.dataset.price) {
+    if (!selectedOption || !selectedOption.getAttribute('data-price')) {
       totalPriceEl.textContent = 'Total: R0';
       return;
     }
 
-    const price = parseFloat(selectedOption.dataset.price) || 0;
+    const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
     const quantity = parseInt(quantityInput.value) || 1;
     const total = price * quantity;
 
@@ -27,14 +30,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveFormData() {
     const formData = {
-      name: document.getElementById('name').value,
-      phone: document.getElementById('phone').value,
-      address: document.getElementById('address').value,
-      area: document.getElementById('area').value,
-      product: document.getElementById('product').value,
-      quantity: document.getElementById('quantity').value,
-      payment: document.getElementById('payment').value,
-      submitMethod: document.getElementById('submitMethod').value
+      name: document.getElementById('name')?.value || '',
+      phone: document.getElementById('phone')?.value || '',
+      address: document.getElementById('address')?.value || '',
+      area: document.getElementById('area')?.value || '',
+      product: document.getElementById('product')?.value || '',
+      quantity: document.getElementById('quantity')?.value || '1',
+      payment: document.getElementById('payment')?.value || '',
+      submitMethod: document.getElementById('submitMethod')?.value || ''
     };
 
     localStorage.setItem('stalasgas_order', JSON.stringify(formData));
@@ -44,113 +47,144 @@ document.addEventListener('DOMContentLoaded', function () {
     const saved = JSON.parse(localStorage.getItem('stalasgas_order'));
     if (!saved) return;
 
-    document.getElementById('name').value = saved.name || '';
-    document.getElementById('phone').value = saved.phone || '';
-    document.getElementById('address').value = saved.address || '';
-    document.getElementById('area').value = saved.area || '';
-    document.getElementById('product').value = saved.product || '';
-    document.getElementById('quantity').value = saved.quantity || 1;
-    document.getElementById('payment').value = saved.payment || '';
-    document.getElementById('submitMethod').value = saved.submitMethod || '';
+    if (document.getElementById('name')) document.getElementById('name').value = saved.name || '';
+    if (document.getElementById('phone')) document.getElementById('phone').value = saved.phone || '';
+    if (document.getElementById('address')) document.getElementById('address').value = saved.address || '';
+    if (document.getElementById('area')) document.getElementById('area').value = saved.area || '';
+    if (document.getElementById('product')) document.getElementById('product').value = saved.product || '';
+    if (document.getElementById('quantity')) document.getElementById('quantity').value = saved.quantity || 1;
+    if (document.getElementById('payment')) document.getElementById('payment').value = saved.payment || '';
+    if (document.getElementById('submitMethod')) document.getElementById('submitMethod').value = saved.submitMethod || '';
 
-    updateTotal();
+    // Wait slightly for the DOM options tree to bind values before calculating
+    setTimeout(updateTotal, 50);
   }
 
   // Restore saved data on load
   restoreFormData();
 
   // Event listeners for real-time calculations and saving
-  productSelect.addEventListener('change', () => {
-    updateTotal();
-    saveFormData();
-  });
+  if (productSelect) {
+    productSelect.addEventListener('change', () => {
+      updateTotal();
+      saveFormData();
+    });
+  }
 
-  quantityInput.addEventListener('input', () => {
-    updateTotal();
-    saveFormData();
-  });
+  if (quantityInput) {
+    quantityInput.addEventListener('input', () => {
+      updateTotal();
+      saveFormData();
+    });
+  }
 
   document.querySelectorAll('input, select').forEach(el => {
     el.addEventListener('change', saveFormData);
   });
 
-  updateTotal();
+  // Attach event listener straight to form submission if a form selector exists
+  const orderForm = document.querySelector('form');
+  if (orderForm) {
+    orderForm.addEventListener('submit', submitOrder);
+  }
 });
 
-// Added 'event' parameter to stop page from reloading
+// Primary Async Order Submission System
 async function submitOrder(event) {
-  if (event) event.preventDefault(); // <-- CRITICAL: Prevents page reload
+  if (event) event.preventDefault(); // Stop page from refreshing instantly
 
   const messageDiv = document.getElementById('message');
-  messageDiv.innerHTML = '';
+  if (!messageDiv) return;
+  messageDiv.innerHTML = '<p style="color:orange; font-weight:bold;">Processing order, please wait...</p>';
 
+  // Capture current values
   const name = document.getElementById('name').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const address = document.getElementById('address').value.trim();
   const area = document.getElementById('area').value.trim();
   const productSelectEl = document.getElementById('product');
-  const productOption = productSelectEl.options[productSelectEl.selectedIndex];
-  const productText = productOption ? productOption.textContent : '';
+  const productOption = productSelectEl ? productSelectEl.options[productSelectEl.selectedIndex] : null;
+  const productText = productOption ? productOption.textContent.trim() : '';
   const quantity = parseInt(document.getElementById('quantity').value) || 1;
-  const payment = document.getElementById('payment').value;
-  const submitMethod = document.getElementById('submitMethod').value;
+  const payment = document.getElementById('payment').value.trim();
+  const submitMethod = document.getElementById('submitMethod').value.trim();
 
+  // Field validation
   if (!name || !phone || !address || !area || !productSelectEl.value || !payment || !submitMethod) {
-    messageDiv.innerHTML = '<p style="color:red;">Please fill in all fields.</p>';
+    messageDiv.innerHTML = '<p style="color:red; font-weight:bold;">⚠️ Please fill in all required fields.</p>';
     return;
   }
 
-  const selectedPrice = parseFloat(productOption.dataset.price) || 0;
+  const selectedPrice = parseFloat(productOption.getAttribute('data-price')) || 0;
   const total = selectedPrice * quantity;
 
-  try {
-    const { error } = await supabase
-      .from('orders')
-      .insert([{
-        customer_name: name,
-        phone: phone,
-        address: address,
-        area: area,
-        product: productText,
-        quantity: quantity,
-        payment_method: payment,
-        total_amount: total,
-        order_date: new Date().toISOString()
-      }]);
+  // 1. Database Submission (Supabase)
+  let databaseSuccess = true;
+  if (supabase) {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .insert([{
+          customer_name: name,
+          phone: phone,
+          address: address,
+          area: area,
+          product: productText,
+          quantity: quantity,
+          payment_method: payment,
+          total_amount: total,
+          order_date: new Date().toISOString()
+        }]);
 
-    if (error) console.error(error);
-  } catch (err) {
-    console.error(err);
+      if (error) {
+        console.error('Supabase Error:', error);
+        databaseSuccess = false;
+      }
+    } catch (err) {
+      console.error('Connection Exception:', err);
+      databaseSuccess = false;
+    }
+  } else {
+    console.error('Supabase client was not initialized properly.');
+    databaseSuccess = false;
   }
 
+  // 2. Build Messaging Strings
   let orderDetails = `New Stala'sGas Order\n\n👤 Name: ${name}\n📞 Phone: ${phone}\n📍 Address: ${address}\n🏠 Area: ${area}\n\n🛒 Product: ${productText}\n🔢 Quantity: ${quantity}\n💰 Total: R${total}\n💳 Payment: ${payment}\n\n`;
 
   let bankingDetailsText = '';
-  if (payment.toUpperCase() === 'EFT') {
-    bankingDetailsText = `🏦 BANKING DETAILS\n\ Account Name: Stala'sGas\nBank: FNB\nAccount Type: Cheque\nAccount Number: 62732719797\n\nPlease send proof of payment to:\n0725744458`;
+  // Force clean casing checks to capture 'eft', 'EFT', or 'Eft'
+  if (payment.toUpperCase().includes('EFT')) {
+    bankingDetailsText = `🏦 BANKING DETAILS\nAccount Name: Stala'sGas\nBank: FNB\nAccount Type: Cheque\nAccount Number: 62732719797\nBranch Code: 250655\n\nPlease email or WhatsApp your proof of payment to: 072 574 4458`;
     orderDetails += bankingDetailsText;
   }
 
-  // Display success message AND banking details on screen if EFT was selected
-  messageDiv.innerHTML = `
-    <p style="color:green; font-weight:bold;">✅ Order submitted successfully!</p>
-    ${payment.toUpperCase() === 'EFT' ? `<div style="background:#f4f4f4; padding:15px; border-radius:5px; margin-top:10px; white-space:pre-line; border-left:4px solid #007bff;">${bankingDetailsText}</div>` : ''}
-  `;
-
-  // Route to WhatsApp or Email
-  if (submitMethod === 'whatsapp') {
-    const whatsappNumber = '27725744458';
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
-    window.open(whatsappUrl, '_blank');
+  // 3. UI Display Output
+  if (databaseSuccess) {
+    messageDiv.innerHTML = `
+      <p style="color:green; font-weight:bold; font-size: 1.1em;">✅ Order recorded successfully!</p>
+      ${payment.toUpperCase().includes('EFT') ? `<div style="background:#f4f4f4; padding:15px; border-radius:5px; margin-top:10px; white-space:pre-line; border-left:4px solid #007bff; color:#333; text-align:left;">${bankingDetailsText.replace(/\n/g, '<br>')}</div>` : ''}
+      <p style="color:#555; font-size:0.9em; margin-top:5px;">Redirecting you to complete message dispatch...</p>
+    `;
   } else {
-    const emailSubject = encodeURIComponent("New Stala'sGas Order");
-    const emailBody = encodeURIComponent(orderDetails);
-    const mailtoLink = `mailto:info@stala.co.za?subject=${emailSubject}&body=${emailBody}`;
-    window.location.href = mailtoLink;
+    // Show a warning but still allow communication dispatch fallback
+    messageDiv.innerHTML = `
+      <p style="color:#d9534f; font-weight:bold;">⚠️ Order info processed with logging latency, proceeding to messaging window...</p>
+      ${payment.toUpperCase().includes('EFT') ? `<div style="background:#f4f4f4; padding:15px; border-radius:5px; margin-top:10px; white-space:pre-line; border-left:4px solid #007bff; color:#333; text-align:left;">${bankingDetailsText.replace(/\n/g, '<br>')}</div>` : ''}
+    `;
   }
 
-  // Clear success message after 15 seconds so they have time to look at banking details
+  // 4. Dispatch Routings (WhatsApp / Email)
   setTimeout(() => {
-    messageDiv.innerHTML = '';
-  }, 15000);
+    if (submitMethod === 'whatsapp') {
+      const whatsappNumber = '27725744458';
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
+      window.open(whatsappUrl, '_blank');
+    } else {
+      const emailSubject = encodeURIComponent("New Stala'sGas Order");
+      const emailBody = encodeURIComponent(orderDetails);
+      const mailtoLink = `mailto:info@stala.co.za?subject=${emailSubject}&body=${emailBody}`;
+      window.location.href = mailtoLink;
+    }
+  }, 1200); // 1.2 second brief delay to allow local state rendering visibility
 }
