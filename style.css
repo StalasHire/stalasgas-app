@@ -1,196 +1,159 @@
-/* ==========================================================================
-   1. Design Variables & Global Resets
-   ========================================================================== */
-:root {
-  --primary-color: #e65100;     /* Gas Orange/Accent */
-  --secondary-color: #0d47a1;   /* Professional Deep Blue */
-  --text-color: #333333;
-  --bg-light: #f5f7fa;
-  --card-bg: #ffffff;
-  --border-radius: 8px;
-  --transition: all 0.3s ease;
-}
-
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
 }
 
 body {
-  background-color: var(--bg-light);
-  color: var(--text-color);
-  line-height: 1.6;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  color: #333;
 }
 
-/* ==========================================================================
-   2. Header & Logo Styling (High Visibility)
-   ========================================================================== */
 .site-header {
-  background-color: #ffffff;
-  padding: 25px 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  width: 100%;
+  background: #1a3c34;
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .header-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.logo-wrapper {
-  display: inline-block;
-  margin-bottom: 12px;
-}
-
-.main-logo {
-  display: block;
-  width: 100%;
-  max-width: 240px; /* Adjust this to size your logo perfectly */
-  height: auto;
-  filter: drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.1));
-}
-
-.tagline {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--primary-color);
-  letter-spacing: 0.5px;
-}
-
-/* ==========================================================================
-   3. Form Layout & Container
-   ========================================================================== */
-.container {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 0 20px;
-}
-
-.form-card {
-  background-color: var(--card-bg);
-  padding: 30px 25px;
-  border-radius: var(--border-radius);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.form-card h2 {
-  color: var(--secondary-color);
-  margin-bottom: 25px;
-  font-size: 1.5rem;
-  text-align: center;
-  font-weight: 700;
-  border-bottom: 2px solid var(--bg-light);
-  padding-bottom: 10px;
-}
-
-/* ==========================================================================
-   4. Inputs, Selects & Form Fields
-   ========================================================================== */
-input[type="text"],
-input[type="tel"],
-input[type="number"],
-select {
-  width: 100%;
-  padding: 12px 15px;
-  margin-bottom: 18px;
-  border: 1px solid #ccd1d9;
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  color: var(--text-color);
-  background-color: #fafbfc;
-  transition: var(--transition);
-  outline: none;
-}
-
-input:focus,
-select:focus {
-  border-color: var(--secondary-color);
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.1);
-}
-
-/* Quantity Field Alignment */
-.quantity-wrapper {
+  padding: 0 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
-  background-color: var(--bg-light);
-  padding: 10px 15px;
-  border-radius: var(--border-radius);
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.main-logo {
+  height: 80px;
+  width: auto;
+}
+
+.tagline {
+  font-size: 1.4rem;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 0 1rem;
+}
+
+.form-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1.8rem;
+  color: #1a3c34;
+  font-size: 1.8rem;
+}
+
+input, select {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 1.2rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #1a3c34;
+  box-shadow: 0 0 0 3px rgba(26, 60, 52, 0.1);
+}
+
+.quantity-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.2rem;
 }
 
 .quantity-wrapper label {
   font-weight: 600;
-  color: var(--text-color);
+  min-width: 80px;
 }
 
-.quantity-wrapper input[type="number"] {
-  width: 90px;
+#quantity {
+  width: 100px;
   margin-bottom: 0;
-  text-align: center;
 }
 
-/* ==========================================================================
-   5. Pricing, Buttons & Feedback Status
-   ========================================================================== */
 #totalPrice {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--secondary-color);
+  font-size: 1.5rem;
+  font-weight: bold;
   text-align: center;
-  margin: 20px 0;
-  padding: 10px;
-  background: rgba(13, 71, 161, 0.05);
-  border-radius: var(--border-radius);
+  margin: 1.5rem 0;
+  color: #1a3c34;
+  padding: 12px;
+  background: #f0f8f5;
+  border-radius: 8px;
 }
 
 button {
   width: 100%;
-  padding: 14px;
-  background-color: var(--primary-color);
+  background: #1a3c34;
   color: white;
+  padding: 16px;
+  font-size: 1.2rem;
+  font-weight: bold;
   border: none;
-  border-radius: var(--border-radius);
-  font-size: 1.1rem;
-  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 4px 12px rgba(230, 81, 0, 0.2);
+  transition: all 0.3s ease;
+  margin-top: 10px;
 }
 
 button:hover {
-  background-color: #cc4700;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(230, 81, 0, 0.3);
-}
-
-button:active {
-  transform: translateY(1px);
+  background: #254d43;
+  transform: translateY(-2px);
 }
 
 #message {
-  margin-top: 15px;
+  margin-top: 1rem;
   text-align: center;
-  font-weight: 600;
-  font-size: 1rem;
-  color: #2e7d32; /* Green success color */
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 500;
 }
 
-/* Responsive Tweaks */
-@media (max-width: 480px) {
-  .container {
-    margin: 20px auto;
-  }
+.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
   .form-card {
-    padding: 20px 15px;
-  }
+    padding: 1.8rem;
+    margin: 20px 10px;
   }
   
+  .header-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+}
