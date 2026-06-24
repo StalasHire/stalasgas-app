@@ -73,6 +73,22 @@ window.open(
 `https://wa.me/27725744458?text=${encodeURIComponent(message)}`,
 '_blank'
 );
+  const prices = {
+
+exchange_5kg: 250,
+exchange_7kg: 325,
+exchange_9kg: 380,
+exchange_14kg: 580,
+exchange_19kg: 750,
+exchange_48kg: 1600,
+
+cylinder_9kg: 650,
+cylinder_48kg: 1200,
+
+combo_9kg: 1030, // 650 + 380
+combo_48kg: 2800 // 1200 + 1600
+
+};
 document
 .getElementById("product")
 .addEventListener("change", function(){
