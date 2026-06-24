@@ -33,7 +33,19 @@
     </div>
 
 </div>
+<input
+    type="text"
+    id="name"
+    placeholder="Customer Name"
+    required
+/>
 
+<input
+    type="tel"
+    id="phone"
+    placeholder="Contact Number"
+    required
+/>
 <input
   type="text"
   id="address"
@@ -59,6 +71,11 @@
 <button onclick="submitOrder()">Submit Order</button>
 <div id="message"></div>
 </div>
+  <select id="payment">
+    <option value="">Payment Method</option>
+    <option value="Cash">Cash</option>
+    <option value="EFT">EFT</option>
+  </select>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="app.js"></script>
 </body>
