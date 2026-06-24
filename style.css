@@ -1,159 +1,79 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stala'sGas Orders</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 100vh;
-  color: #333;
-}
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo-wrapper">
+        <img src="StalasGas_Logo.png" alt="Stala'sGas Logo" class="main-logo">
+      </div>
+      <p class="tagline">Cook Smart. Use Gas.</p>
+    </div>
+  </header>
 
-.site-header {
-  background: #1a3c34;
-  color: white;
-  padding: 1rem 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+  <div class="container">
+    <div class="form-card">
+      <h2>Place Order Here</h2>
 
-.header-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+      <input type="text" id="name" placeholder="Customer Name" required />
+      <input type="tel" id="phone" placeholder="Contact Number" required />
+      <input type="text" id="address" placeholder="Delivery Address" required />
+      <input type="text" id="area" placeholder="Area / Suburb" required />
 
-.logo-wrapper {
-  display: flex;
-  align-items: center;
-}
+      <select id="product" required>
+        <option value="">Select Product</option>
+        
+        <optgroup label="🔄 Exchange">
+          <option value="exchange_5kg" data-price="250">5kg Exchange - R250</option>
+          <option value="exchange_7kg" data-price="325">7kg Exchange - R325</option>
+          <option value="exchange_9kg" data-price="380">9kg Exchange - R380</option>
+          <option value="exchange_14kg" data-price="580">14kg Exchange - R580</option>
+          <option value="exchange_19kg" data-price="750">19kg Exchange - R750</option>
+          <option value="exchange_48kg" data-price="1600">48kg Exchange - R1600</option>
+        </optgroup>
 
-.main-logo {
-  height: 80px;
-  width: auto;
-}
+        <optgroup label="🛢️ Empty Cylinder">
+          <option value="cylinder_9kg" data-price="650">9kg Empty Cylinder - R650</option>
+          <option value="cylinder_48kg" data-price="1200">48kg Empty Cylinder - R1200</option>
+        </optgroup>
 
-.tagline {
-  font-size: 1.4rem;
-  font-weight: 500;
-  font-style: italic;
-}
+        <optgroup label="🔥 Cylinder + Gas">
+          <option value="combo_9kg" data-price="1030">9kg Cylinder + Gas - R1030</option>
+          <option value="combo_48kg" data-price="2800">48kg Cylinder + Gas - R2800</option>
+        </optgroup>
+      </select>
 
-.container {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 0 1rem;
-}
+      <select id="payment" required>
+        <option value="">Payment Method</option>
+        <option value="Cash">Cash</option>
+        <option value="EFT">EFT</option>
+      </select>
 
-.form-card {
-  background: white;
-  border-radius: 16px;
-  padding: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
+      <div class="quantity-wrapper">
+        <label for="quantity">Quantity:</label>
+        <input id="quantity" type="number" value="1" min="1" required>
+      </div>
 
-h2 {
-  text-align: center;
-  margin-bottom: 1.8rem;
-  color: #1a3c34;
-  font-size: 1.8rem;
-}
+      <select id="submitMethod" required>
+        <option value="whatsapp">Submit via WhatsApp</option>
+        <option value="email">Submit via Email</option>
+      </select>
 
-input, select {
-  width: 100%;
-  padding: 14px;
-  margin-bottom: 1.2rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
+      <p id="totalPrice">Total: R0</p>
+      
+      <button onclick="submitOrder()">Submit Order</button>
+      
+      <div id="message"></div>
+    </div>
+  </div>
 
-input:focus, select:focus {
-  outline: none;
-  border-color: #1a3c34;
-  box-shadow: 0 0 0 3px rgba(26, 60, 52, 0.1);
-}
-
-.quantity-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 1.2rem;
-}
-
-.quantity-wrapper label {
-  font-weight: 600;
-  min-width: 80px;
-}
-
-#quantity {
-  width: 100px;
-  margin-bottom: 0;
-}
-
-#totalPrice {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-  margin: 1.5rem 0;
-  color: #1a3c34;
-  padding: 12px;
-  background: #f0f8f5;
-  border-radius: 8px;
-}
-
-button {
-  width: 100%;
-  background: #1a3c34;
-  color: white;
-  padding: 16px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
-}
-
-button:hover {
-  background: #254d43;
-  transform: translateY(-2px);
-}
-
-#message {
-  margin-top: 1rem;
-  text-align: center;
-  padding: 12px;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.success {
-  background: #d4edda;
-  color: #155724;
-}
-
-.error {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .form-card {
-    padding: 1.8rem;
-    margin: 20px 10px;
-  }
-  
-  .header-container {
-    flex-direction: column;
-    text-align: center;
-    gap: 10px;
-  }
-}
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
