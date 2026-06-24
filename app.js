@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const totalPriceEl = document.getElementById('totalPrice');
 
   function updateTotal() {
+    if (!productSelect) return;
     const selectedOption = productSelect.options[productSelect.selectedIndex];
     if (!selectedOption || !selectedOption.dataset.price) {
       totalPriceEl.textContent = 'Total: R0';
@@ -19,8 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   productSelect.addEventListener('change', updateTotal);
   quantityInput.addEventListener('input', updateTotal);
-
-  updateTotal();
+  setTimeout(updateTotal, 100);
 });
 
 // Supabase Client
@@ -32,21 +32,23 @@ const supabase = Supabase.createClient(
 // Submit Order
 async function submitOrder() {
   const messageDiv = document.getElementById('message');
-  messageDiv.innerHTML = '';
+  if (messageDiv) messageDiv.innerHTML = '';
 
   const name = document.getElementById('name').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const address = document.getElementById('address').value.trim();
   const area = document.getElementById('area').value.trim();
+  
   const productSelectEl = document.getElementById('product');
   const productOption = productSelectEl.options[productSelectEl.selectedIndex];
   const productText = productOption ? productOption.textContent : '';
+  
   const quantity = parseInt(document.getElementById('quantity').value) || 1;
   const payment = document.getElementById('payment').value;
   const submitMethod = document.getElementById('submitMethod').value;
 
   if (!name || !phone || !address || !area || !productSelectEl.value || !payment || !submitMethod) {
-    messageDiv.innerHTML = '<p style="color: red;">Please fill in all fields.</p>';
+    if (messageDiv) messageDiv.innerHTML = '<p style="color: red;">Please fill in all fields.</p>';
     return;
   }
 
@@ -55,7 +57,7 @@ async function submitOrder() {
 
   // Save to Supabase
   try {
-    const { error } = await supabase.from('orders').insert([{
+    await supabase.from('orders').insert([{
       customer_name: name,
       phone: phone,
       address: address,
@@ -66,12 +68,11 @@ async function submitOrder() {
       total_amount: total,
       order_date: new Date().toISOString()
     }]);
-    if (error) console.error('Supabase error:', error);
   } catch (err) {
-    console.log('Supabase save skipped:', err);
+    console.log('Supabase save skipped:', err.message);
   }
 
-  // Build order message
+  // Build order message with clear EFT section
   let orderDetails = `*New Stala'sGas Order*\n\n` +
     `👤 Name: ${name}\n` +
     `📞 Phone: ${phone}\n` +
@@ -80,27 +81,32 @@ async function submitOrder() {
     `🛒 Product: ${productText}\n` +
     `🔢 Quantity: ${quantity}\n` +
     `💰 Total: R${total}\n` +
-    `💳 Payment: ${payment}\n\n`;
+    `💳 Payment Method: ${payment}\n\n`;
 
-  // Add banking details if EFT selected
+  // === BANKING DETAILS FOR EFT ===
   if (payment === 'EFT') {
-    orderDetails += `🏦 *Banking Details for EFT:*\n` +
-      `Stala'sGas\n` +
-      `FNB Chq Acc\n` +
+    orderDetails += `🔴 *EFT PAYMENT REQUIRED*\n` +
+      `🏦 Stala'sGas\n` +
+      `FNB Cheque Account\n` +
       `Account Number: 62732719797\n\n` +
-      `Please send your proof of payment to 072 574 4458.\n`;
+      `📲 Please send proof of payment to 072 574 4458 after transferring.\n` +
+      `Thank you for choosing Stala'sGas! 🔥\n\n`;
   }
 
-  messageDiv.innerHTML = '<p style="color: green;">✅ Order submitted successfully!</p>';
+  if (messageDiv) {
+    messageDiv.innerHTML = '<p style="color: green;">✅ Order submitted successfully!</p>';
+  }
 
-  // Submit via chosen method
+  // Send via chosen method
   if (submitMethod === 'whatsapp') {
     const whatsappNumber = '27725744458';
     const whatsappUrl = `https://wa.me/\( {whatsappNumber}?text= \){encodeURIComponent(orderDetails)}`;
     window.open(whatsappUrl, '_blank');
   } else {
-    alert('📧 Email submission ready:\n\n' + orderDetails);
+    alert('📧 Order ready for Email:\n\n' + orderDetails);
   }
 
-  setTimeout(() => { messageDiv.innerHTML = ''; }, 6000);
+  setTimeout(() => { 
+    if (messageDiv) messageDiv.innerHTML = ''; 
+  }, 6000);
 }
