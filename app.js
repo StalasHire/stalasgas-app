@@ -106,3 +106,41 @@ Payment Method: ${payment}`;
 
   document.getElementById('message').innerHTML = 'Order Submitted Successfully';
 }
+  // 5. Route Based on Choice
+  if (submitMethod === 'whatsapp') {
+    // Route to WhatsApp
+    window.open(
+      `https://wa.me/27725744458?text=${encodeURIComponent(messageText)}`,
+      '_blank'
+    );
+    document.getElementById('message').innerHTML = 'Order Saved! Opening WhatsApp...';
+    
+  } else if (submitMethod === 'email') {
+    // Route to Email
+    
+    // METHOD A: Simple "mailto" link (Opens user's default Mail app pre-filled)
+    const emailSubject = encodeURIComponent(`New Gas Order - ${name}`);
+    const emailBody = encodeURIComponent(messageText);
+    window.location.href = `mailto:info@stala.co.za?subject=${emailSubject}&body=${emailBody}`;
+    
+    /* // METHOD B: Silent Background Email via EmailJS (Alternative setup)
+    // To switch to this, uncomment this block and set up your free account at emailjs.com
+    emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+        customer_name: name,
+        customer_phone: phone,
+        delivery_address: `${address}, ${area}`,
+        order_details: `${quantity}x ${product}`,
+        total_amount: `R${amount}`,
+        payment_method: payment,
+        to_email: "info@stala.co.za" 
+    }).then(() => {
+        document.getElementById('message').innerHTML = 'Order submitted & Email sent to Stala\'sGas!';
+    }, (err) => {
+        console.error('Email failed to send...', err);
+        document.getElementById('message').innerHTML = 'Order saved to database, but email notification failed.';
+    });
+    */
+    
+    document.getElementById('message').innerHTML = 'Order Saved! Opening Email Client...';
+    }
+      
